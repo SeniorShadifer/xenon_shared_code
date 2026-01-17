@@ -1,8 +1,6 @@
 package fs_utils_test
 
 import (
-	"encoding/json"
-	"os"
 	"reflect"
 	"testing"
 
@@ -11,23 +9,33 @@ import (
 
 type TestSettingsStruct struct{ Message string }
 
-func TestReadSettings(t *testing.T) {
+const path = "test_settings_file.json"
+
+func TestReadAndWriteSettingsFunctions(t *testing.T) {
 	settings := TestSettingsStruct{Message: "Hello, world!"}
-	path := "test_settings_file.json"
 
-	serialized_settings, err := json.Marshal(settings)
+	err := fs_utils.WriteSettings(path, settings)
 	if err != nil {
-		t.Fatal("Failed to serialize settings.")
-	}
-
-	err = os.WriteFile(path, serialized_settings, 0644)
-	if err != nil {
-		t.Fatal("Failed to write settings to file.")
+		t.Fatal("Cannot write settings to file:", err)
 	}
 
 	readed_settings, err := fs_utils.ReadSettings[TestSettingsStruct](path)
 	if err != nil {
 		t.Fatal("Cannot read settings:", err)
+	}
+
+	if !reflect.DeepEqual(&settings, readed_settings) {
+		t.Fatal("Settings", readed_settings, "not equals to expected", settings)
+	}
+}
+
+// TODO: Upgrade test
+func TestReadSettingsOrWriteAndReturnDefaultFunction(t *testing.T) {
+	settings := TestSettingsStruct{Message: "Hello, world!"}
+
+	readed_settings, err := fs_utils.ReadSettingsOrWriteAndReturnDefault(path, settings)
+	if err != nil {
+		t.Fatal("Failed:", err)
 	}
 
 	if !reflect.DeepEqual(&settings, readed_settings) {
