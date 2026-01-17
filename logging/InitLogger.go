@@ -16,7 +16,7 @@ func InitLogger(path string) (*zap.Logger, error) {
 
 	encoder := zapcore.NewConsoleEncoder(encoderConfig)
 
-	fileWriteSyncer := zapcore.AddSync(&lumberjack.Logger{Filename: "logs/app.log",
+	fileWriteSyncer := zapcore.AddSync(&lumberjack.Logger{Filename: path,
 		MaxSize:    10,
 		MaxBackups: 3,
 		MaxAge:     7})
