@@ -23,7 +23,7 @@ func InitLogger(path string) (*zap.Logger, error) {
 	consoleWriteSyncer := os.Stdout
 
 	core := zapcore.NewTee(
-		zapcore.NewCore(encoder, fileWriteSyncer, zap.InfoLevel),
+		zapcore.NewCore(encoder, fileWriteSyncer, zap.DebugLevel),
 		zapcore.NewCore(encoder, consoleWriteSyncer, zap.DebugLevel),
 	)
 
