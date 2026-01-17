@@ -10,7 +10,7 @@ import (
 func InitLogger(path string) (*zap.Logger, error) {
 	encoderConfig := zap.NewProductionEncoderConfig()
 	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
+	encoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 
 	fileEncoder := zapcore.NewJSONEncoder(encoderConfig)
 	consoleEncoder := zapcore.NewConsoleEncoder(encoderConfig)
