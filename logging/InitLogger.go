@@ -5,6 +5,7 @@ import (
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 func InitLogger(path string) (*zap.Logger, error) {
@@ -13,23 +14,20 @@ func InitLogger(path string) (*zap.Logger, error) {
 	encoderConfig.EncodeCaller = zapcore.ShortCallerEncoder
 	encoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 
-	fileEncoder := zapcore.NewJSONEncoder(encoderConfig)
-	consoleEncoder := zapcore.NewConsoleEncoder(encoderConfig)
+	encoder := zapcore.NewConsoleEncoder(encoderConfig)
 
-	fileWriteSyncer, err := os.OpenFile(
-		path,
-		os.O_APPEND|os.O_CREATE|os.O_WRONLY,
-		0644,
-	)
-	if err != nil {
-		return nil, err
-	}
+	fileWriteSyncer := zapcore.AddSync(&lumberjack.Logger{Filename: "logs/app.log",
+		MaxSize:    10,
+		MaxBackups: 3,
+		MaxAge:     7})
 	consoleWriteSyncer := os.Stdout
 
 	core := zapcore.NewTee(
-		zapcore.NewCore(fileEncoder, fileWriteSyncer, zap.InfoLevel),
-		zapcore.NewCore(consoleEncoder, consoleWriteSyncer, zap.DebugLevel),
+		zapcore.NewCore(encoder, fileWriteSyncer, zap.InfoLevel),
+		zapcore.NewCore(encoder, consoleWriteSyncer, zap.DebugLevel),
 	)
 
-	return zap.New(core, zap.AddCaller()), nil
+	logger := zap.New(core, zap.AddCaller())
+	zap.ReplaceGlobals(logger)
+	return logger, nil
 }
